@@ -4727,6 +4727,36 @@
     loadManga(manga);
     document.querySelector('#MangaOnlineViewer')?.addEventListener('hydrate', hydrateApp);
     if (manga.comments) document.querySelector('#CommentsArea')?.append(manga.comments);
+    document.querySelector('main#Chapter')?.addEventListener('click', (evt) => {
+      const mEvt = evt;
+      if (mEvt.clientX / window.innerWidth < 0.25) {
+        clickScroll(-1);
+      } else {
+        clickScroll(1);
+      }
+    });
+  }
+  let targetPosition = 0;
+  let requestAnimationFrameId = null;
+  const checkScrollEnd = () => {
+    if (Math.abs(window.scrollY - targetPosition) <= 1) {
+      requestAnimationFrameId = null;
+    } else {
+      requestAnimationFrame(checkScrollEnd);
+    }
+  };
+  function clickScroll(sign) {
+    if (requestAnimationFrameId == null) {
+      targetPosition = window.scrollY;
+    } else {
+      cancelAnimationFrame(requestAnimationFrameId);
+    }
+    targetPosition += sign * window.innerHeight * 0.8;
+    window.scrollTo({
+      top: targetPosition,
+      behavior: 'smooth',
+    });
+    requestAnimationFrameId = requestAnimationFrame(checkScrollEnd);
   }
 
   async function captureComments() {

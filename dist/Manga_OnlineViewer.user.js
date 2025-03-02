@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name          Manga OnlineViewer
 // @author        Tago
-// @updateURL     https://github.com/TagoDR/MangaOnlineViewer/raw/master/dist/Manga_OnlineViewer.meta.js
-// @downloadURL   https://github.com/TagoDR/MangaOnlineViewer/raw/master/dist/Manga_OnlineViewer.user.js
+// @updateURL     https://github.com/aspectum/MangaOnlineViewer/raw/refs/heads/feature/scroll-on-click/dist/Manga_OnlineViewer.meta.js
+// @downloadURL   https://github.com/aspectum/MangaOnlineViewer/raw/refs/heads/feature/scroll-on-click/dist/Manga_OnlineViewer.user.js
 // @supportURL    https://github.com/TagoDR/MangaOnlineViewer/issues
 // @namespace     https://github.com/TagoDR
 // @description   Shows all pages at once in online view for these sites: Asura Scans, Batoto, BilibiliComics, Comick, Dynasty-Scans, Flame Comics, Ikigai Mangas - EltaNews, Ikigai Mangas - Ajaco, KuManga, LeerCapitulo, LHTranslation, Local Files, M440, MangaBuddy, MangaDemon, MangaDex, MangaFox, MangaHere, Mangago, MangaHub, MangaKakalot, NeloManga, MangaNato, Natomanga, MangaOni, Mangareader, MangaToons, ManhwaWeb, MangaGeko.com, MangaGeko.cc, ReadComicsOnline, ReaperScans, TuMangaOnline, WebNovel, WebToons, WeebCentral, Vortex Scans, ZeroScans, MangaStream WordPress Plugin, Realm Oasis, Voids-Scans, Luminous Scans, Shimada Scans, Night Scans, Manhwa-Freak, OzulScansEn, CypherScans, MangaGalaxy, LuaScans, Drake Scans, Rizzfables, NovatoScans, TresDaos, Lectormiau, NTRGod, FoOlSlide, Kireicake, Madara WordPress Plugin, MangaHaus, Isekai Scan, Comic Kiba, Zinmanga, mangatx, Toonily, Mngazuki, JaiminisBox, DisasterScans, ManhuaPlus, TopManhua, NovelMic, Reset-Scans, LeviatanScans, Dragon Tea, SetsuScans, ToonGod
@@ -4727,6 +4727,36 @@
     loadManga(manga);
     document.querySelector('#MangaOnlineViewer')?.addEventListener('hydrate', hydrateApp);
     if (manga.comments) document.querySelector('#CommentsArea')?.append(manga.comments);
+    document.querySelector('main#Chapter')?.addEventListener('click', (evt) => {
+      const mEvt = evt;
+      if (mEvt.clientX / window.innerWidth < 0.25) {
+        clickScroll(-1);
+      } else {
+        clickScroll(1);
+      }
+    });
+  }
+  let targetPosition = 0;
+  let requestAnimationFrameId = null;
+  const checkScrollEnd = () => {
+    if (Math.abs(window.scrollY - targetPosition) <= 1) {
+      requestAnimationFrameId = null;
+    } else {
+      requestAnimationFrame(checkScrollEnd);
+    }
+  };
+  function clickScroll(sign) {
+    if (requestAnimationFrameId == null) {
+      targetPosition = window.scrollY;
+    } else {
+      cancelAnimationFrame(requestAnimationFrameId);
+    }
+    targetPosition += sign * window.innerHeight * 0.8;
+    window.scrollTo({
+      top: targetPosition,
+      behavior: 'smooth',
+    });
+    requestAnimationFrameId = requestAnimationFrame(checkScrollEnd);
   }
 
   function waitForElm(selector, target = document.body) {
