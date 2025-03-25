@@ -3682,7 +3682,7 @@
       }
     } else {
       window.scrollBy({
-        top: (sign * window.innerHeight) / 2,
+        top: sign * window.innerHeight * 0.8,
         behavior: 'smooth',
       });
     }
