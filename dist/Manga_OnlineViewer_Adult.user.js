@@ -6,7 +6,7 @@
 // @supportURL    https://github.com/TagoDR/MangaOnlineViewer/issues
 // @namespace     https://github.com/TagoDR
 // @description   Shows all pages at once in online view for these sites: AkumaMoe, BestPornComix, DoujinMoeNM, 8Muses.com, 8Muses.io, ExHentai, e-Hentai, FSIComics, FreeAdultComix, GNTAI.net, Hentai2Read, HentaiEra, HentaiFox, HentaiHand, nHentai.com, HentaIHere, HentaiNexus, HenTalk, hitomi, Imhentai, KingComix, Chochox, Comics18, Luscious, MultPorn, MyHentaiGallery, nHentai.net, nHentai.xxx, lhentai, 9Hentai, Pururin, SchaleNetwork, Simply-Hentai, TMOHentai, 3Hentai, HentaiVox, Tsumino, vermangasporno, vercomicsporno, wnacg, XlecxOne, xyzcomics, Madara WordPress Plugin, AllPornComic, Manytoon, Manga District
-// @version       2025.03.25
+// @version       2025.03.29
 // @license       MIT
 // @icon          https://cdn-icons-png.flaticon.com/32/9824/9824312.png
 // @run-at        document-end
@@ -4703,8 +4703,7 @@
     requestAnimationFrameId = requestAnimationFrame(checkScrollEnd);
   }
 
-  async function captureComments() {
-    if (!getUserSettings().enableComments) return null;
+  async function captureIframeComments() {
     let comments = document.querySelector('#disqus_thread, #fb-comments');
     if (comments) {
       logScript(`Waiting to Comments to load`, comments);
@@ -4719,11 +4718,41 @@
           );
         }),
       );
-      if (comments.children.length) {
-        logScript(`Got Comments`, comments);
-      } else {
-        logScript(`Timeout Comments`);
-      }
+    }
+    return comments;
+  }
+  async function captureComickComments() {
+    let comments = document.querySelector('#comments-container');
+    if (!comments) return comments;
+    const css = [...document.styleSheets]
+      .filter(
+        (stylesheet) => !stylesheet.href || stylesheet.href.startsWith(window.location.origin),
+      )
+      .map((stylesheet) => {
+        try {
+          return [...stylesheet.cssRules].map(({ cssText }) => cssText).join('\n');
+        } catch (e) {
+          return '';
+        }
+      });
+    comments.classList.add('dark');
+    comments.classList.remove('blur-sm');
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const shadowRoot = container.attachShadow({ mode: 'open' });
+    shadowRoot.appendChild(comments);
+    const style = document.createElement('style');
+    style.textContent = css.join('\n');
+    shadowRoot.appendChild(style);
+    return container;
+  }
+  async function captureComments() {
+    if (!getUserSettings().enableComments) return null;
+    const comments = (await captureIframeComments()) ?? (await captureComickComments());
+    if (comments?.children.length) {
+      logScript(`Got Comments`, comments);
+    } else {
+      logScript(`Timeout Comments`);
     }
     window.scrollTo(0, 0);
     return comments;
