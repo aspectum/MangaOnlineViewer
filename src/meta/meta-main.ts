@@ -5,9 +5,9 @@ export default {
   name: 'Manga OnlineViewer',
   author: 'Tago',
   updateURL:
-    'https://github.com/aspectum/MangaOnlineViewer/raw/refs/heads/feature/scroll-on-click/dist/Manga_OnlineViewer.meta.js',
+    'https://github.com/aspectum/MangaOnlineViewer/raw/refs/heads/feature/comick-comments/dist/Manga_OnlineViewer.meta.js',
   downloadURL:
-    'https://github.com/aspectum/MangaOnlineViewer/raw/refs/heads/feature/scroll-on-click/dist/Manga_OnlineViewer.user.js',
+    'https://github.com/aspectum/MangaOnlineViewer/raw/refs/heads/feature/comick-comments/dist/Manga_OnlineViewer.user.js',
   supportURL: 'https://github.com/TagoDR/MangaOnlineViewer/issues',
   namespace: 'https://github.com/TagoDR',
   description: `Shows all pages at once in online view for these sites: ${sites
@@ -33,3 +33,4 @@ export default {
   include: sites.map((s) => s.url),
   exclude: [/https?:\/\/(www\.)?tsumino.com\/.+/, /https?:\/\/(www\.)?pururin.io\/.+/],
 } as Partial<Tampermonkey.ScriptMetadata>;
+
