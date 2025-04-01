@@ -6,7 +6,7 @@
 // @supportURL    https://github.com/TagoDR/MangaOnlineViewer/issues
 // @namespace     https://github.com/TagoDR
 // @description   Shows all pages at once in online view for these sites: Asura Scans, Batoto, BilibiliComics, Comick, Dynasty-Scans, Flame Comics, Ikigai Mangas - EltaNews, Ikigai Mangas - Ajaco, KuManga, LeerCapitulo, LHTranslation, Local Files, M440, MangaBuddy, MangaDemon, MangaDex, MangaFox, MangaHere, Mangago, MangaHub, MangaKakalot, NeloManga, MangaNato, Natomanga, MangaOni, Mangareader, MangaToons, ManhwaWeb, MangaGeko.com, MangaGeko.cc, ReadComicsOnline, ReaperScans, TuMangaOnline, WebNovel, WebToons, WeebCentral, Vortex Scans, ZeroScans, MangaStream WordPress Plugin, Realm Oasis, Voids-Scans, Luminous Scans, Shimada Scans, Night Scans, Manhwa-Freak, OzulScansEn, CypherScans, MangaGalaxy, LuaScans, Drake Scans, Rizzfables, NovatoScans, TresDaos, Lectormiau, NTRGod, FoOlSlide, Kireicake, Madara WordPress Plugin, MangaHaus, Isekai Scan, Comic Kiba, Zinmanga, mangatx, Toonily, Mngazuki, JaiminisBox, DisasterScans, ManhuaPlus, TopManhua, NovelMic, Reset-Scans, LeviatanScans, Dragon Tea, SetsuScans, ToonGod
-// @version       2025.04.11
+// @version       2025.04.13
 // @license       MIT
 // @icon          https://cdn-icons-png.flaticon.com/32/2281/2281832.png
 // @run-at        document-end
@@ -180,6 +180,33 @@
     },
   };
 
+  function captureComickComments() {
+    let comments = document.querySelector('#comments-container');
+    if (!comments) return comments;
+    const css = [...document.styleSheets]
+      .filter(
+        (stylesheet) => !stylesheet.href || stylesheet.href.startsWith(window.location.origin),
+      )
+      .map((stylesheet) => {
+        try {
+          return [...stylesheet.cssRules].map(({ cssText }) => cssText).join('\n');
+        } catch (e) {
+          return '';
+        }
+      });
+    comments.classList.remove('blur-sm');
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const shadowRoot = container.attachShadow({ mode: 'open' });
+    const commentsParent = document.createElement('div');
+    commentsParent.classList.add('dark');
+    commentsParent.appendChild(comments);
+    shadowRoot.appendChild(commentsParent);
+    const style = document.createElement('style');
+    style.textContent = css.join('\n');
+    shadowRoot.appendChild(style);
+    return container;
+  }
   const comick = {
     name: 'Comick',
     url: /https?:\/\/(www\.)?comick.io\/.+/,
@@ -204,6 +231,7 @@
         prev: data?.prev?.href,
         next: data?.next?.href,
         listImages: pages,
+        comments: captureComickComments(),
       };
     },
   };
